@@ -1,24 +1,14 @@
 import socket
-H_SIZE = 10 #Header Size
-s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-s.connect((socket.gethostname(),1234))
 
-while True:
+client = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+client.connect(('127.0.0.1',1002))
 
-    full=''
-    new=True
-    while True:
-        msg = s.recv(8)
-        if new:
-            print(f"New message length: {msg[:H_SIZE]}")
-            msglen=int(msg[:H_SIZE])
-            new=False
-        
-        full += msg.decode("utf-8")
-        if len(full)-H_SIZE == msglen:
-            print("Full message recieved")
-            print(full[H_SIZE:])
-            new=True
-            full=''
+file = open("main.jpg","rb")
+img_data = file.read(2048)
 
-    print(full)
+while img_data:
+    client.send(img_data)
+    img_data = file.read(2048)
+
+file.close()
+client.close()

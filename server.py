@@ -1,19 +1,16 @@
 import socket
-import time
-H_SIZE = 10 #Header Size
-s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-s.bind((socket.gethostname(),1234))
-s.listen(5)
+server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+server.bind(('127.0.0.1',1002))
+server.listen()
 
-while True:
-    clientsocket, address = s.accept()
-    print(f"connection from {address} has been established!")
-    msg = "Welcome to the server"
-    msg = f'{len(msg):<{H_SIZE}}' + msg   #Fixed Length Header
-    clientsocket.send(bytes(msg,"utf-8"))
-    
-    while True:
-        time.sleep(3)
-        msg='connection is still alive'
-        msg = f'{len(msg):<{H_SIZE}}' + msg
-        clientsocket.send(bytes(msg,"utf-8"))
+client_socket, client_address = server.accept()
+
+file = open('server_img.jpg',"wb")
+
+img_chunk = client_socket.recv(2048) #stream based protocol
+while img_chunk:
+    file.write(img_chunk)
+    img_chunk = client_socket.recv(2048)
+
+file.close()
+client_socket.close()
